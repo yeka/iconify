@@ -57,10 +57,16 @@ function readDir(dir) {
     return files
 }
 
-export default function (opt) {
+function yekaIconify (opt) {
     const iconRegex = /icon=\"([\w_-]+):([\w_-]+)\"/g
     const queryRegex = /(^|&)name=([\w_-]+):([\w_-]+)(&|$)/
     const extIncludes = [".html", ".ts", ".js", ".svelte"]
+    const iconFile = "/vite-plugin-svelte-iconify/src/icon.ts"
+
+    if (!fs.existsSync(path.resolve("./node_modules/@iconify/json"))) {
+        console.warn("vite-plugin-svelte-iconify requires @iconify/json\n\nRun `npm i -D @iconify/json` to install it")
+        throw "error"
+    }
 
     let icons = {}
     let iconify = new Iconify()
@@ -128,7 +134,7 @@ export default function (opt) {
         },
 
         load(id) {
-            if (id.slice(-16) == "/iconify/icon.ts") {
+            if (id.slice(-iconFile.length) == iconFile) {
                 if (opt.mode === "production") {
                     const data = fs.readFileSync(id, 'utf8');
                     let lines = data.split("\n")
@@ -141,3 +147,5 @@ export default function (opt) {
         },
     }
 }
+
+export { yekaIconify }
