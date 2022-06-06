@@ -4,6 +4,13 @@
 
 This plugin is an alternative of `@iconify/svelte`.
 
+## Install
+```bash
+npm i -D 'git+https://github.com/yeka/iconify.git' '@iconify/json'
+```
+
+## Setup
+
 `vite.config.ts`
 ```js
 import { defineConfig } from 'vite'
@@ -29,8 +36,8 @@ export default defineConfig((env) => ({
 ```
 
 You can search an icon from the huge collection of iconify here:
-
 [https://icon-sets.iconify.design/](https://icon-sets.iconify.design/)
+
 
 Optionally, you can controll the icon size using `.iconify` class in global css file.
 ```css
