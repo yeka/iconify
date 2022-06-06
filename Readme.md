@@ -1,11 +1,14 @@
 # Iconify Plugin for Vite Svelte
 
+[Iconify](https://iconify.design) is a collection of svg icons you can use on your projects.
+
+This plugin is an alternative of `@iconify/svelte`.
 
 `vite.config.ts`
 ```js
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { yekaIconify } from 'vite-plugin-svelte-iconify'
+import yekaIconify from '@yeka/iconify/vite.js'
 
 // https://vitejs.dev/config/
 export default defineConfig((env) => ({
@@ -19,11 +22,15 @@ export default defineConfig((env) => ({
 `App.svelte`
 ```html
 <script>
-    import Icon from 'vite-plugin-svelte-iconify/Icon.svelte'
+    import Icon from '@yeka/iconify/Icon.svelte'
 </script>
 
 <Icon icon="mdi:home" />
 ```
+
+You can search an icon from the huge collection of iconify here:
+
+[https://icon-sets.iconify.design/](https://icon-sets.iconify.design/)
 
 Optionally, you can controll the icon size using `.iconify` class in global css file.
 ```css

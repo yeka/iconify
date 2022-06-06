@@ -1,6 +1,6 @@
 const icons = {} // it will be replaced by build script
 
-async function get(name: string): Promise<{ width: number, height: number, path: string }> {
+async function getIcon(name) {
     const p = name.split(":")
     if (icons[p[0]] === undefined) {
         console.warn("Icon Set "+p[0]+" doesn't exists")
@@ -12,5 +12,3 @@ async function get(name: string): Promise<{ width: number, height: number, path:
     }
     return icons[p[0]][p[1]]
 }
-
-export { get }
