@@ -7,10 +7,9 @@ const thisPackage = "@yeka/iconify"
 
 function yekaIconify(opt) {
     const iconRegex = /icon=\"([\w_-]+):([\w_-]+)\"/g
-    const queryRegex = /(^|&)name=([\w_-]+):([\w_-]+)(&|$)/
+    const queryRegex = /^\/assets\/iconify\/([\w_-]+):([\w_-]+)\.svg$/
     const extIncludes = [".html", ".ts", ".js", ".svelte"]
-    const iconScriptName = '/assets/iconify.js'
-    const iconFile = "/" + thisPackage + "/src/icon.ts"
+    const iconScriptName = '/assets/iconify.svg'
 
     if (!fs.existsSync(path.resolve("./node_modules/@iconify/json"))) {
         console.warn("" + thisPackage + " requires @iconify/json\n\nRun `npm i -D @iconify/json` to install it")
@@ -25,34 +24,47 @@ function yekaIconify(opt) {
 
         configureServer(server) {
             server.middlewares.use((req, res, next) => {
-                switch (req._parsedUrl.pathname) {
-                    case "/yeka/iconify":
-                        const m = req._parsedUrl.query.match(queryRegex)
-                        if (m == null) {
-                            res.statusCode = 404
-                            res.end()
-                            return
-                        }
-
-                        const setName = m[2]
-                        const iconName = m[3]
-                        try {
-                            const icon = iconify.loadIcon(setName, iconName)
-                            res.end(JSON.stringify(icon))
-                        } catch (err) {
-                            res.statusCode = 404
-                            res.end(JSON.stringify({ "error": err }))
-                        }
-                        break
-
-                    case iconScriptName:
-                        res.end(fs.readFileSync("./node_modules/" + thisPackage + "/src/icon.dev.js", 'utf8'))
-                        break
-
-                    default:
-                        next()
+                if (!req._parsedUrl.pathname.startsWith('/assets/iconify/')) {
+                    next()
+                    return;
                 }
+
+                const m = req._parsedUrl.pathname.match(queryRegex)
+                if (m == null) {
+                    res.statusCode = 404
+                    res.end()
+                    return
+                }
+
+                const setName = m[1]
+                const iconName = m[2]
+                try {
+                    const icon = iconify.loadIcon(setName, iconName)
+                    let content = '<svg xmlns="http://www.w3.org/2000/svg">'
+                    content += `<symbol id="id" viewBox="0 0 ${icon.width} ${icon.height}">${icon.path}</symbol>`
+                    content += '</svg>'
+                    res.writeHead(200, {
+                        'Content-Type': 'image/svg+xml',
+                        'Content-Length': content.length
+                    });
+                    res.end(content)
+                } catch (err) {
+                    console.log(err)
+                    res.statusCode = 404
+                    res.end(JSON.stringify({ "error": err }))
+                }
+                return
+
             })
+        }, //*/
+
+        load(id) {
+            if (opt.mode === "production") {
+                return
+            }
+            if (!id.endsWith('@yeka/iconify/Icon.svelte')) return
+            const content = fs.readFileSync(id, 'utf8')
+            return content.replace(/\/assets\/iconify.svg#\{icon\}/, '/assets/iconify/{icon}.svg#id')
         },
 
         buildStart() {
@@ -86,20 +98,22 @@ function yekaIconify(opt) {
                 }
             }
 
-            const data = fs.readFileSync(path.resolve("./node_modules/" + thisPackage + "/src/icon.js"), 'utf8');
-            let lines = data.split("\n")
-            lines[0] = "const icons = " + JSON.stringify(icons)
-            const content = lines.join("\n")
+            let content = '<svg xmlns="http://www.w3.org/2000/svg">'
+
+            for (const setName of Object.keys(icons)) {
+                for (const name of Object.keys(icons[setName])) {
+                    const icon = icons[setName][name];
+                    content += `<symbol id="${setName}:${name}" viewBox="0 0 ${icon.width} ${icon.height}">${icon.path}</symbol>`
+                }
+            }
+
+            content += '</svg>'
 
             this.emitFile({
                 type: 'asset',
                 fileName: iconScriptName.slice(1),
                 source: content,
             })
-        },
-
-        transformIndexHtml(html) {
-            return html.replace(/<\/head>/, `  <script src="` + iconScriptName + `"></script>\n  </head>`);
         }
     }
 }

@@ -4,10 +4,9 @@
 
 This plugin is an alternative of `@iconify/svelte`.
 
-It will generate a single javascript library that contains only the icons that is used.
-The Icon.svelte will make use of the javascript library to generate an inline svg icon.
+It will generate a single svg file that contains only the icons that is used.
+The Icon.svelte will reference the external svg file.
 
-Because it relies on javascript to generate the icon, there might be a delay before the icon shows up on the page.
 ## Install
 ```bash
 npm i -D 'git+https://github.com/yeka/iconify.git#inline' '@iconify/json'
