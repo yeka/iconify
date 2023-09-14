@@ -11,7 +11,7 @@ class Iconify {
 
     loadSet(setName) {
         if (this.collections[setName] === undefined) {
-            throw "IconSet '" + setName + "' doesn't exists"
+            return
         }
 
         if (this.collections[setName].loaded == true) {
@@ -25,8 +25,8 @@ class Iconify {
 
     loadIcon(setName, name) {
         this.loadSet(setName)
-        if (this.collections[setName].icons.icons[name] === undefined) {
-            throw "Icon " + setName + ":" + name + " doesn't exists"
+        if (this.collections[setName]?.icons.icons[name] === undefined) {
+            return undefined
         }
         const icon = {
             width: this.collections[setName].icons.icons[name].width,

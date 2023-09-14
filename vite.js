@@ -6,11 +6,10 @@ import { readDir } from "./src/functions.js"
 const thisPackage = "@yeka/iconify"
 
 function yekaIconify(opt) {
-    const iconRegex = /icon=\"([\w_-]+):([\w_-]+)\"/g
+    const iconRegex = /\"([\w_-]+):([\w_-]+)\"/g
     const queryRegex = /(^|&)name=([\w_-]+):([\w_-]+)(&|$)/
     const extIncludes = [".html", ".ts", ".js", ".svelte"]
     const iconScriptName = '/assets/iconify.js'
-    const iconFile = "/" + thisPackage + "/src/icon.ts"
 
     if (!fs.existsSync(path.resolve("./node_modules/@iconify/json"))) {
         console.warn("" + thisPackage + " requires @iconify/json\n\nRun `npm i -D @iconify/json` to install it")
@@ -82,7 +81,15 @@ function yekaIconify(opt) {
             // Collect used icon
             for (const setName of Object.keys(icons)) {
                 for (const name of Object.keys(icons[setName])) {
-                    icons[setName][name] = iconify.loadIcon(setName, name)
+                    const icon = iconify.loadIcon(setName, name)
+                    if (icon != undefined) {
+                        icons[setName][name] = icon
+                    } else {
+                        delete icons[setName][name]
+                    }
+                }
+                if (Object.keys(icons[setName]).length == 0) {
+                    delete icons[setName]
                 }
             }
 
